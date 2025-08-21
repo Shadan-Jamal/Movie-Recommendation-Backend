@@ -1,9 +1,10 @@
 import express,{Request, Response} from "express";
 import config from "./config/config.ts";
 import cors from "cors"
-import { pipeline, Tensor } from "@xenova/transformers"
-import { index } from "./config/pinecone_setup.ts";
-import { RecordMetadata, RecordValues } from "@pinecone-database/pinecone";
+import { RecordMetadata } from "@pinecone-database/pinecone";
+import { DescriptionClassifier } from "./services/DescriptionClassifier.ts";
+import { EmotionClassifier } from "./services/EmotionClassifer.ts";
+import { PineconeService } from "./services/PineconeService.ts";
 
 const app = express()
 
@@ -12,54 +13,38 @@ app.use(cors({
     origin : "http://localhost:5173"
 }))
 
-const text_classification_pipeline = async () => {
-    const classifier = await pipeline("text-classification","MicahB/roberta-base-go_emotions")
-    return classifier
-}
+const feature_extraction_pipeline = new DescriptionClassifier()
+const text_classification_pipeline = new EmotionClassifier()
+const pinecone_service = new PineconeService()
 
-const feature_extraction_pipeline = async () => {
-    const classifier = await pipeline("feature-extraction","Xenova/all-MiniLM-L6-v2")
-    return classifier
-}
-
-app.post("/",async (req : Request, res : Response) => {
-    try{
-        const {input} = req.body
-        console.log(input)
-        const classifier = await text_classification_pipeline()
-        const result = await classifier(input)
-        res.json(result)
-    }
-    catch(err){
-        console.error(err)
-    }
-})
-
+//Fetching and sending movies based on plot similarity
 app.post("/description", async (req : Request, res : Response) =>{
     try {
         const { plot } = req.body;
-        const embedder = await feature_extraction_pipeline()
-        const output : Tensor = await embedder(plot, {pooling : "mean", normalize : true});
-        const vectors = Array.from(output.data)
-        console.log(vectors)
+        const options = {pooling : "mean", normalize : true}
 
-        const results = await index.query({
+        const output = await feature_extraction_pipeline.getEmbedding(plot, options);
+        const vectors = Array.from(output.data)
+
+        const results = await pinecone_service.queryResults({
             vector : vectors,
-            topK : 15,
+            topK : 20,
             includeMetadata : true
         })
 
-        // console.log(results)
-
         const recommendations = results.matches.map((match) => {
-            const metadata : RecordMetadata | undefined = match.metadata 
+            const metadata : RecordMetadata | undefined = match.metadata
             return {
+                id : metadata?.id,
                 title : metadata?.title,
-                genre : metadata?.genre,
+                genres : metadata?.genres,
+                release_date : metadata?.release_date,
+                runtime : metadata?.runtime,
+                poster_path : metadata?.poster_path,
                 score : match.score
             }
         })
-        console.log("Sending back data")
+        
         res.json(recommendations)
     }
     catch(err){
@@ -67,6 +52,31 @@ app.post("/description", async (req : Request, res : Response) =>{
     }
 })
 
+//Fetching and sending movies based on emotions
+app.post("/emotion",async (req : Request, res : Response) => {
+    try{
+        const { plot } = req.body
+        const options = { topk : 10 }
+
+        //getting the emotion label
+        const emotion = await text_classification_pipeline.detectEmotion(plot, options)
+        console.log(emotion)
+        //embedding the emotion into vectors
+        const emotion_embedding = await feature_extraction_pipeline.getEmbedding(plot,{
+            pooling : "mean",
+            normalize : true
+        })
+        console.log(emotion_embedding)
+        const results = await pinecone_service.queryBasedOnEmotions(
+            emotion,
+            Array.from(emotion_embedding.data)
+        )
+        console.log(results)
+    }
+    catch(err){
+
+    }
+})
 
 app.listen(config.port, () => {
     console.log(`Listening on port: ${config.port}`)
