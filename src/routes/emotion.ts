@@ -14,20 +14,20 @@ router.post("/",async (req : Request, res : Response) => {
 
         //getting the emotion label
         const emotion = await text_classification_pipeline.detectEmotion(plot, options)
-
+        
         //embedding the emotion into vectors
         const emotion_embedding = await feature_extraction_pipeline.getEmbedding(plot,{
             pooling : "mean",
             normalize : true
         })
         
-        let results : any = await pinecone_service.queryBasedOnEmotions(
+        let hits  : any = await pinecone_service.queryBasedOnEmotions(
             emotion,
             Array.from(emotion_embedding.data)
         )
         
-        results = results.map((res : any) => res.fields)
-        res.json(results)
+        hits = hits.map((res : any) => res.fields)
+        res.json(hits)
     }
     catch(err){
 

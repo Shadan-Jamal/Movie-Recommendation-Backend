@@ -17,10 +17,10 @@ router.post("/", async (req : Request, res : Response) =>{
 
         const results = await pinecone_service.queryResults({
             vector : vectors,
-            topK : 20,
+            topK : 40,
             includeMetadata : true
         })
-
+        
         const recommendations = results.matches.map((match) => {
             const metadata : RecordMetadata | undefined = match.metadata
             return {

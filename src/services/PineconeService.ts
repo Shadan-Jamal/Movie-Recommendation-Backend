@@ -47,15 +47,16 @@ export class PineconeService{
 
     async queryBasedOnEmotions(emotion : string, emotion_embedding : number[]){
         const targetGenres = genres[emotion] || []
-
+        console.log(emotion)
+        console.log(targetGenres)
         // Fetch all movies that match any genre in targetGenres
         try{
-            const results = await index.namespace("__default__").searchRecords({
+            const movies = await index.namespace("__default__").searchRecords({
                 query : {
                     vector : {
                         values : emotion_embedding
                     },
-                    topK : 50,
+                    topK : 40,
                     filter : {
                         genres : {"$in" : targetGenres}
                     }
@@ -66,7 +67,8 @@ export class PineconeService{
                     rankFields : ["title"]
                 }
             })
-            return results.result.hits
+            
+            return movies.result.hits
         }
         catch(err){
             console.log(err)
