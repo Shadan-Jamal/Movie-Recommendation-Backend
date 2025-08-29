@@ -8,10 +8,17 @@ import { PineconeService } from "@services/PineconeService";
 
 const app = express()
 
-//middleware
+// Determine frontend URL based on environment
+const frontendUrl =
+    process.env.NODE_ENV === "development"
+        ? process.env.FRONTEND_URL_DEV
+        : process.env.FRONTEND_URL_PROD;
+
+console.log(frontendUrl)
+// middleware
 app.use(express.json())
 app.use(cors({
-    origin : "*"
+    origin: frontendUrl
 }))
 
 export const text_classification_pipeline = new EmotionClassifier()
