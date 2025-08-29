@@ -1,10 +1,10 @@
 import express, {Request, Response} from "express";
-import descriptionRouter from "@routes/description";
-import emotionRouter from "@routes/emotion"
-import config from "@config/config"
+import descriptionRouter from "./routes/description";
+import emotionRouter from "./routes/emotion"
+import config from "./config/config"
 import cors from "cors"
-import { EmotionClassifier } from "@services/EmotionClassifier";
-import { PineconeService } from "@services/PineconeService";
+import { EmotionClassifier } from "./services/EmotionClassifier";
+import { PineconeService } from "./services/PineconeService";
 
 const app = express()
 

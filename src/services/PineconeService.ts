@@ -1,4 +1,4 @@
-import { Embedding, EmbeddingsList } from "@pinecone-database/pinecone"
+import { EmbeddingsList } from "@pinecone-database/pinecone"
 import {index, pinecone, parameters, model} from "../config/pinecone_setup"
 
 const  genres : {[key : string] : string[]} = {

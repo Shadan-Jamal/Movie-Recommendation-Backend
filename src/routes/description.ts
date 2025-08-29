@@ -1,7 +1,7 @@
 import express from "express"
 import { Request, Response } from "express"
 import { RecordMetadata } from "@pinecone-database/pinecone"
-import { pinecone_service } from "@/server"
+import { pinecone_service } from "../server"
 
 const router = express.Router()
 
