@@ -10,10 +10,10 @@ const app = express()
 
 // Determine frontend URL based on environment
 const frontendUrl =
-    process.env.NODE_ENV === "development"
-        ? process.env.FRONTEND_URL_DEV
-        : process.env.FRONTEND_URL_PROD;
-
+    process.env.NODE_ENV === "production"
+        ? process.env.FRONTEND_URL_PROD
+        : process.env.FRONTEND_URL_DEV;
+console.log(process.env.NODE_ENV)
 console.log(frontendUrl)
 // middleware
 app.use(express.json())
