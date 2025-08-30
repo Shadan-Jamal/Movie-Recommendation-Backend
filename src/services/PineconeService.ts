@@ -1,5 +1,5 @@
 import { EmbeddingsList } from "@pinecone-database/pinecone"
-import {index, pinecone, parameters, model} from "../config/pinecone_setup"
+import {index, pinecone, parameters, model} from "../config/pinecone_setup.js"
 
 const  genres : {[key : string] : string[]} = {
     admiration: ["Drama", "Romance"],

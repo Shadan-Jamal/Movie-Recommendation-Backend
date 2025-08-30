@@ -1,7 +1,7 @@
 import express from "express"
 import { Request, Response } from "express"
 import { RecordMetadata } from "@pinecone-database/pinecone"
-import { pinecone_service } from "../server"
+import { pinecone_service } from "../server.js"
 
 const router = express.Router()
 
@@ -17,7 +17,7 @@ router.post("/", async (req : Request, res : Response) => {
             includeMetadata : true
         })
 
-        const recommendations = results.matches.map((match) => {
+        const recommendations = results.matches.map((match : any) => {
             const metadata : RecordMetadata | undefined = match.metadata
             return {
                 id : match?.id,

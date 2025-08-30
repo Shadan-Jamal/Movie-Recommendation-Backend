@@ -1,7 +1,7 @@
 import express from "express"
 import {Request, Response} from "express"
-import { pinecone_service } from "../server"
-import { text_classification_pipeline } from "../server"
+import { pinecone_service } from "../server.js"
+import { text_classification_pipeline } from "../server.js"
 
 
 const router = express.Router()
