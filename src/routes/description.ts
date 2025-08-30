@@ -9,6 +9,7 @@ router.post("/", async (req : Request, res : Response) => {
     try{
         let {plot} = req.body
         plot = Array(1).fill(plot)
+        console.log(plot)
         const output = await pinecone_service.generateEmbeddings(plot)
 
         const results = await pinecone_service.queryResults({
