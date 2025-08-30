@@ -11,7 +11,7 @@ const app = express()
 // middleware
 app.use(express.json())
 app.use(cors({
-    origin : [process.env.FRONTEND_URL_DEV, process.env.FRONT_URL_PROD]
+    origin : [process.env.FRONTEND_URL_DEV, process.env.FRONTEND_URL_PROD]
 }))
 
 export const text_classification_pipeline = new EmotionClassifier()

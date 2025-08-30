@@ -32,7 +32,6 @@ router.post("/",async (req : Request, res : Response) => {
                 ...res.fields
             }
         })
-        console.log(hits)
         res.json(hits)
     }
     catch(err){
