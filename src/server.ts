@@ -8,11 +8,10 @@ import { PineconeService } from "./services/PineconeService";
 
 const app = express()
 
-console.log(`NODE_ENV: ${process.env.NODE_ENV}`)
 // middleware
 app.use(express.json())
 app.use(cors({
-    origin: config.frontendUrl
+    origin: [process.env.FRONTEND_URL_DEV, process.env.FRONTEND_URL_PROD],
 }))
 
 export const text_classification_pipeline = new EmotionClassifier()

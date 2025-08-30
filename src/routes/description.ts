@@ -33,6 +33,7 @@ router.post("/", async (req : Request, res : Response) => {
         res.json(recommendations)
     }
     catch(err){
+        console.error(err)
         res.status(500).json("Internal Server Error")
     }
 })
