@@ -2,19 +2,29 @@ import express from "express"
 import { Request, Response } from "express"
 import { RecordMetadata } from "@pinecone-database/pinecone"
 import { pinecone_service } from "../server.js"
+import {rateLimit} from "express-rate-limit"
 
 const router = express.Router()
+
+const limiter = rateLimit({
+    windowMs : 15 * 1000,
+    limit : 5,
+    standardHeaders : true,
+    ipv6Subnet : 56
+})
+
+router.use(limiter)
 
 router.post("/", async (req : Request, res : Response) => {
     try{
         let {plot} = req.body
-        plot = Array(1).fill(plot)
         console.log(plot)
+        plot = Array(1).fill(plot)
         const output = await pinecone_service.generateEmbeddings(plot)
 
         const results = await pinecone_service.queryResults({
             vector : output,
-            topK : 40,
+            topK : 100,
             includeMetadata : true
         })
 
@@ -25,7 +35,7 @@ router.post("/", async (req : Request, res : Response) => {
                 title : metadata?.title,
                 movie_link : metadata?.movie_link,
                 rating : metadata?.rating,
-                mpa : metadata?.mpa,
+                mpa : metadata?.MPA,
                 genres : metadata?.genres,
                 year : metadata?.year,
                 duration : metadata?.duration,

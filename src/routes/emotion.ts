@@ -2,9 +2,18 @@ import express from "express"
 import {Request, Response} from "express"
 import { pinecone_service } from "../server.js"
 import { text_classification_pipeline } from "../server.js"
-
+import {rateLimit} from "express-rate-limit"
 
 const router = express.Router()
+
+const limiter = rateLimit({
+    windowMs : 15 * 1000,
+    limit : 5,
+    standardHeaders : true,
+    ipv6Subnet : 56
+})
+
+router.use(limiter)
 
 //Fetching and sending movies based on emotions
 router.post("/",async (req : Request, res : Response) => {
@@ -13,7 +22,6 @@ router.post("/",async (req : Request, res : Response) => {
         if (!plot) {
             return res.status(400).json({ error: 'Plot is required' });
         }
-        console.log(plot)
         const options = { topk : 10 }
 
         //getting the emotion label

@@ -1,5 +1,8 @@
 {
     "watch": ["src"],
     "ext": ".ts,.js",
-    "exec": "tsx src/server.ts"
+    "env": {
+        "DEBUG": "express:router"
+    },
+    "exec": "npx tsx src/server.ts"
 }

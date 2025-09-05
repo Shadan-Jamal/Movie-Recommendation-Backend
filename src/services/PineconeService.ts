@@ -40,11 +40,14 @@ interface QueryResults{
 
 export class PineconeService{
     
+    async checkIfMovieExists(imdbId : string) : Promise<boolean>{
+        const exists = await index.fetch([imdbId])
+        return Object.keys(exists.records).length > 0
+    }
+    
     async queryResults(queryOptions : QueryResults){
         try {
-            console.log('[PineconeService] Querying with options:', JSON.stringify(queryOptions));
             const results = await index.query(queryOptions);
-            console.log('[PineconeService] Query successful');
             return results;
         } catch (error) {
             console.error('[PineconeService] Error in queryResults:', error);
@@ -55,9 +58,7 @@ export class PineconeService{
     async generateEmbeddings(text : string | string[]) : Promise<number[]>{
         try {
             const input = Array.isArray(text) ? text : [text];
-            console.log('[PineconeService] Generating embeddings for input:', input);
             const embeddings : EmbeddingsList = await pinecone.inference.embed(model, input, parameters);
-            console.log('[PineconeService] Embeddings generated successfully');
             const data : any = embeddings.data;
             if (!data || !data[0] || !data[0].values) {
                 throw new Error('Invalid embedding response structure');
@@ -71,7 +72,6 @@ export class PineconeService{
 
     async queryBasedOnEmotions(emotion : string, emotion_embedding : number[]){
         let targetGenres = genres[emotion]
-        console.log(targetGenres)
         // Fetch all movies that match any genre in targetGenres
         try{
             const movies = await index.namespace("__default__").searchRecords({
@@ -79,7 +79,7 @@ export class PineconeService{
                     vector : {
                         values : emotion_embedding
                     },
-                    topK : 40,
+                    topK : 100,
                     filter : {
                         genres : {"$in" : targetGenres}
                     }
